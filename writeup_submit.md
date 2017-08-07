@@ -220,13 +220,14 @@ Discussion
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
 
 1. Overall this project basically links all what I learn in this term1, including lane detection, image classification (here we use linear SVM instead of the deep learning algorithm), and lot of image processing algorithms.
-2. Since this project is focusing on learning, I explicitly setup each step in the pipeline, and plot images in the middle of each step, which do help me understanding how the algorithm works.
-3. Also known there are so many parameters in each steps need to tune. Some of them can be done by randomly settings, then the algorithms with automatically tune it (like in the deep learning session, all starting wieghts can be random).
-). But some of the parameters need empirical data to set up, or use some API to do permutation combination tests, then pick the the optimized one. Parameter tuning is very key of the final pipeline.
-4. Another thing need to take care is the length of the pipeline, and the cost of each step. When more and more steps added, the lenthy pipeline will be a burden of the performance. In this project, there is some future work which need to simplify or merge some steps, or cache some middle compute results.
-5. To make more professional code, need to maintain some own libraries and share them across in the steps of the pipeline; also need a better framework which can load data, report data and give easy way to visualize the data, include both middle outputs and final outputs. 
-For Self-Driving car, to create a dedicated software platform are a must have. 
-6. For classification, training data are key, and augmentation the training data and make sure they are balance are the key of the key. This will help prevent potential overfitting in majority of cases.
+2. Since this project is focusing on learning, I explicitly setup each step in the pipeline, and plot images in the middle of each step, which do help me understanding how the algorithm works. Some of the steps can be simplified, and merge, but in this project I did not.
+3. Also known there are so many parameters in each step which need to be tuned. Some of them can be start by randomly settings, then the algorithms will automatically tune it (like in the deep learning session, all starting weights can be random).
+). But some of the parameters need empirical configurations, or use some dedicated API to do permutation combination, then manually pick the the optimized ones. Parameter tuning is very key of the final pipeline, and determine the quality of the final delivery.
+4. Another thing need to take care is the length of the pipeline, and the cost of each step. When more and more steps added, long pipeline will be a burden of the performance. In this project, since I merge all the steps from advanced lane detection with the new steps of HOG, 
+sliding windows, car-noncar prediction, heatmap, labels, which make the pipeline very slow. As next step, need to look deeper, may need to simplify or merge some steps, or cache some middle compute results.
+5. To make more professional code, need to maintain some own libraries and share them across the steps of the pipeline; also need a better framework which can load data, report data and give easy way to visualize the data for both middle outputs and final outputs. 
+For Self-Driving car, to create a dedicated **software platform** are a must have. 
+6. For classification, training data are key, and augmentation the training data and make sure they are balance are the key of the key. This will help prevent potential over-fitting in majority of cases.
 7. Finally but not least, understand and know how to use image processing algorithms are very important in self-pilot car implementation. 
 
 
