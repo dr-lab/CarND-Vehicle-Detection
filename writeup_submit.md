@@ -161,6 +161,33 @@ Bellow is my algorithm:
 At the same time, also setup some start and stop X and Y, to minimize the area which used to scan the sliding windows.  Bellow is one sample out put the of the sliding window:
 Here I found that using a ratio = 0.3 when expands the width and height can get best results. I use ratio = 0.4 at the beginning which draw the rectagle at the front of the drive way, which will cause
   unnecessary brake.
+  
+  
+  Also add one more step to the final pipeline, use Deque to cache latest 5 frames' hot windows, then increase the heatmap threshold, this help to avoid false positive too.
+  
+  Follow are code lines about this algorithms:
+  
+    from collections import deque
+    hotWindowsDeque = deque(maxlen = 5)
+  
+    hot_windows = search_windows(draw_image, windows, svc, X_scaler, color_space=color_space, 
+                            spatial_size=spatial_size, hist_bins=hist_bins, 
+                            orient=orient, pix_per_cell=pix_per_cell, 
+                            cell_per_block=cell_per_block, 
+                            hog_channel=hog_channel, spatial_feat=spatial_feat, 
+                            hist_feat=hist_feat, hog_feat=hog_feat)                       
+
+    hotWindowsDeque.append(hot_windows)
+    
+    heat = np.zeros_like(draw_image[:,:,0]).astype(np.float)
+
+
+    # Add heat to each box in box list
+    for hw in hotWindowsDeque:
+        heat = add_heat(heat,hot_windows)
+
+    # Apply threshold to help remove false positives
+    heat = apply_threshold(heat,threshold)
 
 
 ![Sliding Windows][windows]
