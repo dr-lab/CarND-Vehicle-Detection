@@ -142,12 +142,13 @@ def slide_window(img, x_start_stop=[None, None], y_start_stop=[None, None],
             for scale in range(1, 3):
                 windowWidth = endx - startx
 
-                startx = np.int(startx - windowWidth * 0.4)
-                endx = np.int(endx + windowWidth * 0.4)
+                startx = np.int(startx - windowWidth * 0.3)
+                endx = np.int(endx + windowWidth * 0.3)
 
                 windowHeight = np.int(endy - starty)
-                starty = np.int(starty - windowHeight * 0.4)
-                endy = np.int(endy + windowHeight * 0.4)
+                starty = np.int(starty - windowHeight * 0.3)
+                endy = np.int(endy + windowHeight * 0.3)
+
 
                 #if (startx > x_start_stop[0] + (img.shape[1] - starty) - windowWidth) and (endx < x_start_stop[1]):
                 window_list.append(((startx, starty), (endx, endy)))
@@ -281,8 +282,11 @@ def search_windows(img, windows, clf, scaler, color_space='RGB',
         test_features = scaler.transform(np.array(features).reshape(1, -1))
         # 6) Predict using your classifier
         prediction = clf.predict(test_features)
+
+        confidence = clf.decision_function(test_features)
+
         # 7) If positive (prediction == 1) then save the window
-        if prediction == 1:
+        if prediction == 1 and abs(confidence) > 0.4:
             on_windows.append(window)
 
 

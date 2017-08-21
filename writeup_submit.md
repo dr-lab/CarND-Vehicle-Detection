@@ -92,15 +92,15 @@ Explain how you settled on your final choice of HOG parameters
 I started to use the parameters in class, and then tried various combinations of parameters. It is little empirical in my case, I tuned based on the final classification accuracy by various of tryings.
 Finally tried following values as parameters in my final video:
 
-    color_space = 'HLS' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
+    color_space = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
     spatial_size = (16, 16)
     hist_bins = 32
-    orient = 9
+    orient = 11
     pix_per_cell = 8
     cell_per_block = 2
     hog_channel = 'ALL'
     spatial_feat = True
-    hist_feat = True
+    hist_feat = false
     hog_feat = True
 
 Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them)
@@ -108,9 +108,11 @@ Describe how (and identify where in your code) you trained a classifier using yo
 
 I created a linear SVM using 
 
-    svc = LinearSVC()
+    svc = LinearSVC(C=0.01, loss='squared_hinge', penalty='l2', dual=True)
     
 Then load training data and verify with the test data. Data are come from "vehicles" and "non-vehicles" downloads. Please check the project README to find out the download link.
+
+Here we use a customized C = 0.01, a lower C value should help with any over-fitting of the training data.
     
 After load the images, randomly shuffle the data, and split data to two groups with 20-80 ratio, 80% for training, and the other 20% for verification. Bellow are the code lines used to split data
 
@@ -120,11 +122,12 @@ After load the images, randomly shuffle the data, and split data to two groups w
 
 Bellow is the training and verification results, with a accuracy = 98.73%.
 
-    Using: 9 orientations 8 pixels per cell and 2 cells per block
-    Feature vector length: 6156
-    17.77 Seconds to train SVC...
-    Test Accuracy of SVC =  0.9873
- 
+    Using: 11 orientations 8 pixels per cell and 2 cells per block
+    Feature vector length: 7332
+    19.71 Seconds to train SVC...
+    Test Accuracy of SVC =  0.9827
+
+
  
 
 Sliding Window Search
@@ -142,20 +145,23 @@ To minimize the window numbers (for performance concern), the scale algorithm I 
 
 Bellow is my algorithm:
 
-    for scale in range(1, 3):
-        windowWidth = endx - startx
+        for scale in range(1, 4):
+            windowWidth = endx - startx
 
-        startx = np.int(startx - windowWidth * 0.4)
-        endx = np.int(endx + windowWidth * 0.4)
+            startx = np.int(startx - windowWidth * 0.3)
+            endx = np.int(endx + windowWidth * 0.3)
 
-        windowHeight = np.int(endy - starty)
-        starty = np.int(starty - windowHeight * 0.4)
-        endy = np.int(endy + windowHeight * 0.4)
+            windowHeight = np.int(endy - starty)
+            starty = np.int(starty - windowHeight * 0.3)
+            endy = np.int(endy + windowHeight * 0.3)
 
         #if (startx > x_start_stop[0] + (img.shape[1] - starty) - windowWidth) and (endx < x_start_stop[1]):
         window_list.append(((startx, starty), (endx, endy)))
 
 At the same time, also setup some start and stop X and Y, to minimize the area which used to scan the sliding windows.  Bellow is one sample out put the of the sliding window:
+Here I found that using a ratio = 0.3 when expands the width and height can get best results. I use ratio = 0.4 at the beginning which draw the rectagle at the front of the drive way, which will cause
+  unnecessary brake.
+
 
 ![Sliding Windows][windows]
 
@@ -163,7 +169,20 @@ At the same time, also setup some start and stop X and Y, to minimize the area w
 Classifier sample and parameter optimization
 -
 
-Ultimately I searched on 4 scales using HLS All channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  
+Ultimately I searched on 4 scales using HLS All channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.
+  
+  When I use classifier predict the images, I check the confidence first, only results above some threshold will be treated as positive. This help reduce the false positive.
+  
+  Following are some lines (in lesson_functions.py l284-288)
+  
+        # 6) Predict using your classifier
+        prediction = clf.predict(test_features)
+
+        confidence = clf.decision_function(test_features)
+
+        # 7) If positive (prediction == 1) then save the window
+        if prediction == 1 and abs(confidence) > 0.4:
+            on_windows.append(window)
 
 Here are some example images which show the vehicles detected:
 
@@ -186,8 +205,14 @@ Video Implementation
 Final video link
 -
 
-Here's a [link to my video result](./project_video_output.mp4)
+Here's a [link to my video result](./project_video_output_v6.mp4)
 
+Other versions of videos got during my steps of tuning. 
+ [V1](./project_video_output_v1.mp4)
+[V2](./project_video_output_v2.mp4)
+[V3](./project_video_output_v3.mp4)
+[V4](./project_video_output_v4.mp4)
+[V5](./project_video_output_v5.mp4)
 
 False positive solution
 -
